@@ -377,6 +377,13 @@
 
         startBtn.addEventListener('click', () => {
             isSystemActive = true;
+            
+            // ATIVAÇÃO DE ÁUDIO PARA CELULAR (DESBLOQUEIO)
+            if ('speechSynthesis' in window) {
+                const unlockSpeech = new SpeechSynthesisUtterance("");
+                window.speechSynthesis.speak(unlockSpeech);
+            }
+
             startBtn.classList.add('opacity-50', 'pointer-events-none');
             startBtn.innerText = "Ligado";
             settingsMenu.classList.remove('is-active');
@@ -388,12 +395,16 @@
             if ('speechSynthesis' in window) {
                 window.speechSynthesis.cancel();
                 isSpeaking = true;
-                if (isRecognizing) recognition.abort();
+                if (isRecognizing && recognition) recognition.abort();
 
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'pt-PT';
+                
+                // Forçar atualização de vozes para celular
                 const voices = window.speechSynthesis.getVoices();
-                utterance.voice = voices.find(v => v.lang === 'pt-PT' && (v.name.includes('Google') || v.name.includes('Natural'))) || voices.find(v => v.lang.includes('pt'));
+                const selectedVoice = voices.find(v => v.lang === 'pt-PT' && (v.name.includes('Google') || v.name.includes('Natural'))) || voices.find(v => v.lang.includes('pt'));
+                
+                if (selectedVoice) utterance.voice = selectedVoice;
 
                 utterance.onstart = () => { avatar.classList.add('talking'); statusText.innerText = "Modulando Voz..."; };
                 utterance.onend = () => { 
@@ -402,6 +413,12 @@
                     isSpeaking = false; 
                     setTimeout(safeStartRecognition, 200); 
                 };
+                utterance.onerror = () => {
+                    avatar.classList.remove('talking');
+                    isSpeaking = false;
+                    setTimeout(safeStartRecognition, 200);
+                };
+
                 window.speechSynthesis.speak(utterance);
             }
         }
@@ -409,7 +426,7 @@
         async function processInput(text) {
             if (!apiKey) {
                 setTimeout(() => {
-                    const resp = `Iniciando protocolo holográfico. Sistema Isabella carregado com sucesso.`;
+                    const resp = `Iniciando protocolo holográfico. Sistema Isabella carregado com sucesso. Áudio ativado.`;
                     isabellaTextEl.innerText = resp; speak(resp);
                 }, 1000);
                 return;
