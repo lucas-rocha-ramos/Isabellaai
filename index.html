@@ -3,39 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Isabella - Assistente Virtual Holográfica</title>
+    <title>Cassandro - Assistente Virtual Holográfico</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tracking.js/1.1.3/tracking-min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tracking.js/1.1.3/data/face-min.js"></script>
     <style>
         /* ====================================================================
-           CONFIGURAÇÃO DE IMAGENS
+           CONFIGURAÇÃO DE IMAGENS E CORES
            ==================================================================== */
         :root {
-            /* Rosto */
             --png-rosto-base: url('https://i.ibb.co/3yF1mKzs/Rosto.png');
-            
-            /* Corpo e Ombros */
-            --png-corpo: url('https://i.ibb.co/Kz5g7bDf/Gemini-Generated-Image-ta9squta9squta9s.png');
-
-            /* Olhos */
+            --png-corpo: url('https://i.ibb.co/tpxpXQ4N/corpo.png');
             --png-olho-fundo-esq: url('https://i.ibb.co/tPYQzkMF/base-olho-esquerdo.png');
             --png-olho-fundo-dir: url('https://i.ibb.co/9mncGNQy/base-olho-direito.png');
             --png-pupila: url('https://i.ibb.co/t9g7SF9/Iris-Olho.png'); 
-
-            /* Pálpebras Reais */
             --png-palpebra-esq: url('https://i.ibb.co/N6jqHqp0/palpebra-esquerda.png'); 
             --png-palpebra-dir: url('https://i.ibb.co/vrngmJ3/palpebra-direita.png');
-            
-            /* Boca */
             --png-boca-cima: url('https://i.ibb.co/RTBYKHfC/Boca-parte-de-cima.png');
             --png-boca-baixo: url('https://i.ibb.co/bMGFtH8S/boca-parte-de-baixo.png');
-
-            /* Cores do Holograma */
-            --holo-color: rgba(56, 189, 248, 0.6);
             --holo-glow: rgba(56, 189, 248, 0.4);
         }
-        /* ==================================================================== */
 
         .img-layer {
             background-size: contain;
@@ -43,7 +30,7 @@
             background-repeat: no-repeat;
         }
 
-        /* Animação da Boca */
+        /* Animações Labiais - Apenas ativadas pela classe .talking */
         @keyframes talk-top {
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(-3px); }
@@ -52,57 +39,31 @@
             0%, 100% { transform: translateY(0); }
             50% { transform: translateY(6px); }
         }
-        .talking .lip-top { animation: talk-top 0.2s infinite alternate; }
-        .talking .lip-bottom { animation: talk-bottom 0.2s infinite alternate; }
-        
-        /* Correção de Transparência da Boca */
-        .lip-top, .lip-bottom {
-            opacity: 1 !important;
-            filter: brightness(1) contrast(1) !important;
-        }
+        .talking .lip-top { animation: talk-top 0.15s infinite alternate; }
+        .talking .lip-bottom { animation: talk-bottom 0.15s infinite alternate; }
+        .lip-top, .lip-bottom { opacity: 1 !important; filter: brightness(1) contrast(1) !important; }
 
-        .mouth-interior {
-            transition: all 0.2s;
-            opacity: 0;
-        }
-        .talking .mouth-interior {
-            opacity: 1;
-            transform: scaleY(3);
-        }
+        .mouth-interior { transition: all 0.2s; opacity: 0; }
+        .talking .mouth-interior { opacity: 1; transform: scaleY(3); }
 
         /* Respiração */
         @keyframes breathe {
             0%, 100% { transform: translateY(0px); }
             50% { transform: translateY(-8px); }
         }
-        .breathing-avatar {
-            animation: breathe 4s ease-in-out infinite;
-        }
+        .breathing-avatar { animation: breathe 4s ease-in-out infinite; }
 
-        /* PISCAR DE OLHOS (A pálpebra desce) */
+        /* Piscar de olhos */
         @keyframes eyelid-blink {
             0%, 90%, 100% { transform: translateY(-110%); }
             93%, 97% { transform: translateY(0%); }
         }
-        .eyelid {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 20;
-            animation: eyelid-blink 4s infinite;
-        }
+        .eyelid { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 20; animation: eyelid-blink 4s infinite; }
 
-        /* Menu de Configurações - Suporte para Hover e Clique Ativo */
+        /* Menu de Configurações */
         .settings-container:hover .settings-menu,
-        .settings-menu.is-active {
-            opacity: 1;
-            transform: translateY(0);
-            pointer-events: auto;
-        }
+        .settings-menu.is-active { opacity: 1; transform: translateY(0); pointer-events: auto; }
 
-        /* Escalonamento Responsivo do Avatar */
         #avatar-container {
             width: 90vw;
             max-width: 350px; 
@@ -111,107 +72,49 @@
             position: relative;
         }
 
-        /* --- EFEITOS DE HOLOGRAMA --- */
-        
-        /* Scanlines (Linhas de varredura) */
+        /* Efeitos de Holograma */
         body::before {
             content: " ";
             display: block;
             position: fixed;
-            top: 0;
-            left: 0;
-            bottom: 0;
-            right: 0;
+            top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%), 
                         linear-gradient(90deg, rgba(255, 0, 0, 0.03), rgba(0, 255, 0, 0.01), rgba(0, 0, 255, 0.03));
-            z-index: 100;
-            background-size: 100% 3px, 3px 100%;
-            pointer-events: none;
+            z-index: 100; background-size: 100% 3px, 3px 100%; pointer-events: none;
         }
 
-        /* Cintilação (Flicker) */
         @keyframes holo-flicker {
-            0% { opacity: 0.98; }
-            5% { opacity: 0.95; }
-            10% { opacity: 0.99; }
-            15% { opacity: 0.96; }
-            20% { opacity: 1; }
-            100% { opacity: 0.98; }
+            0% { opacity: 0.98; } 10% { opacity: 0.99; } 20% { opacity: 1; } 100% { opacity: 0.98; }
         }
-        .hologram-flicker {
-            animation: holo-flicker 0.15s infinite;
-        }
+        .hologram-flicker { animation: holo-flicker 0.15s infinite; }
 
-        /* Tonalidade azulada global (Holograma) */
-        .hologram-tint {
-            mix-blend-mode: screen;
-            background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(0, 0, 0, 0) 70%);
-            pointer-events: none;
-        }
+        .hologram-tint { mix-blend-mode: screen; background: radial-gradient(circle, rgba(56, 189, 248, 0.15) 0%, rgba(0, 0, 0, 0) 70%); pointer-events: none; }
 
-        /* Estática de TV antiga (Noise) */
-        @keyframes static-noise {
-            0% { transform: translate(0,0); }
-            10% { transform: translate(-1%,-1%); }
-            20% { transform: translate(1%,1%); }
-            30% { transform: translate(-2%,1%); }
-            40% { transform: translate(1%,-2%); }
-            50% { transform: translate(-1%,1%); }
-            60% { transform: translate(-2%,-2%); }
-            70% { transform: translate(2%,1%); }
-            80% { transform: translate(1%,2%); }
-            90% { transform: translate(-1%,-1%); }
-            100% { transform: translate(0,0); }
-        }
         .noise-overlay {
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
+            position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
             background-image: url('https://media.giphy.com/media/oEI9uWUicGLeU/giphy.gif');
-            opacity: 0.03;
-            z-index: 101;
-            pointer-events: none;
-            mix-blend-mode: overlay;
+            opacity: 0.03; z-index: 101; pointer-events: none; mix-blend-mode: overlay;
         }
-
     </style>
 </head>
 <body class="bg-slate-950 text-white min-h-screen flex items-center justify-center overflow-hidden font-sans relative">
 
-    <!-- Camadas de Efeito -->
     <div class="absolute inset-0 hologram-tint z-40"></div>
     <div class="noise-overlay"></div>
 
-    <!-- Ícone de Engrenagem (Ajustado para Celular - z-index superior a 100) -->
     <div class="settings-container absolute top-4 right-4 md:top-6 md:right-6 z-[110] flex flex-col items-end">
         <div id="gear-icon" class="bg-slate-800/80 p-4 md:p-3 rounded-full cursor-pointer hover:bg-slate-700 transition-colors shadow-2xl border border-sky-500/30">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-sky-400">
-                <path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path>
-                <circle cx="12" cy="12" r="3"></circle>
-            </svg>
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="text-sky-400"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"></path><circle cx="12" cy="12" r="3"></circle></svg>
         </div>
-        
-        <!-- Menu Flutuante -->
         <div id="settings-menu" class="settings-menu opacity-0 translate-y-2 pointer-events-none transition-all duration-300 bg-slate-800 border border-slate-700 p-4 rounded-xl shadow-2xl mt-2 w-56 md:w-64">
-            <p id="status-text" class="text-xs text-slate-400 mb-4 text-center">Sistema offline</p>
-            <button id="start-btn" class="w-full bg-sky-600 hover:bg-sky-500 text-white py-3 md:py-2 rounded-lg font-semibold transition-all shadow-lg shadow-sky-500/20 active:scale-95 text-sm md:text-base">
-                Iniciar Sistema
-            </button>
+            <p id="status-text" class="text-xs text-slate-400 mb-4 text-center">Sistema Offline</p>
+            <button id="start-btn" class="w-full bg-sky-600 hover:bg-sky-500 text-white py-3 md:py-2 rounded-lg font-semibold transition-all shadow-lg shadow-sky-500/20 active:scale-95 text-sm md:text-base">Ativar Cassandro</button>
         </div>
     </div>
 
-    <!-- AVATAR CENTRALIZADO E RESPONSIVO -->
     <div id="avatar-container" class="relative breathing-avatar flex flex-col items-center hologram-flicker">
-        
-        <!-- Posição do Corpo -->
         <div class="absolute top-[50%] left-[-32%] w-[160%] h-[160%] img-layer z-25 pointer-events-none" style="background-image: var(--png-corpo); opacity: 0.85;"></div>
-
-        <!-- Máscara do Rosto (z-30) -->
         <div class="absolute inset-0 img-layer z-30 pointer-events-none" style="background-image: var(--png-rosto-base); opacity: 0.9;"></div>
-        
-        <!-- Olho Esquerdo -->
         <div class="absolute top-[43%] left-[25%] z-10 w-[20%] h-[8%]">
             <div class="w-full h-full img-layer flex items-center justify-center relative overflow-hidden" style="background-image: var(--png-olho-fundo-esq);">
                 <div id="pupil-left" class="w-[40%] h-[75%] absolute transition-transform duration-75 ease-out z-0">
@@ -220,8 +123,6 @@
                 <div class="eyelid img-layer" style="background-image: var(--png-palpebra-esq);"></div>
             </div>
         </div>
-
-        <!-- Olho Direito -->
         <div class="absolute top-[43%] left-[51%] z-10 w-[20%] h-[8%]">
             <div class="w-full h-full img-layer flex items-center justify-center relative overflow-hidden" style="background-image: var(--png-olho-fundo-dir);">
                 <div id="pupil-right" class="w-[40%] h-[75%] absolute transition-transform duration-75 ease-out z-0">
@@ -230,27 +131,19 @@
                 <div class="eyelid img-layer" style="background-image: var(--png-palpebra-dir);"></div>
             </div>
         </div>
-
-        <!-- Fundo da Boca -->
         <div class="absolute top-[66%] left-[50%] -translate-x-1/2 w-[30%] h-[2%] z-0 flex justify-center items-center">
             <div class="w-full h-full bg-[#2a0510] rounded-full mouth-interior"></div>
         </div>
-
-        <!-- Lábio Superior -->
         <div class="absolute top-[64%] left-[48%] -translate-x-1/2 w-[45%] h-[10%] z-10">
             <div class="w-full h-full img-layer lip-top" style="background-image: var(--png-boca-cima); background-position: bottom;"></div>
         </div>
-
-        <!-- Lábio Inferior -->
         <div class="absolute top-[73%] left-[47%] -translate-x-1/2 w-[45%] h-[10%] z-10">
             <div class="w-full h-full img-layer lip-bottom" style="background-image: var(--png-boca-baixo); background-position: top;"></div>
         </div>
-
     </div>
 
-    <!-- Rodapé Discreto -->
     <div class="absolute bottom-6 md:bottom-10 left-0 right-0 px-4 flex flex-col items-center pointer-events-none">
-        <h1 class="text-lg md:text-xl font-light tracking-[0.4em] text-sky-400/60 mb-4 uppercase drop-shadow-[0_0_8px_var(--holo-glow)]">Cassandro - Versão 1.0</h1>
+        <h1 class="text-lg md:text-xl font-light tracking-[0.4em] text-sky-400/60 mb-4 uppercase drop-shadow-[0_0_8px_var(--holo-glow)]">Cassandro v4.0</h1>
         <div id="message-box" class="p-4 bg-slate-900/70 backdrop-blur-lg rounded-2xl max-w-lg w-full text-center hidden border border-sky-500/20 shadow-[0_0_20px_rgba(0,0,0,0.5)] pointer-events-auto">
             <p id="user-text" class="text-sky-300/70 text-[10px] md:text-xs mb-1 italic font-mono uppercase tracking-widest"></p>
             <p id="isabella-text" class="text-sky-100 text-xs md:text-sm leading-relaxed font-medium"></p>
@@ -261,6 +154,7 @@
 
     <script>
         const apiKey = ""; 
+        const ttsVoice = "Puck"; // Voz masculina realista
 
         const pupilL = document.getElementById('pupil-left');
         const pupilR = document.getElementById('pupil-right');
@@ -278,17 +172,8 @@
         let isSpeaking = false;
         let isRecognizing = false; 
 
-        // Toggle Menu para Celular
-        gearIcon.addEventListener('click', (e) => {
-            e.stopPropagation();
-            settingsMenu.classList.toggle('is-active');
-        });
-
-        // Fechar menu ao clicar fora
-        document.addEventListener('click', () => {
-            settingsMenu.classList.remove('is-active');
-        });
-
+        gearIcon.addEventListener('click', (e) => { e.stopPropagation(); settingsMenu.classList.toggle('is-active'); });
+        document.addEventListener('click', () => { settingsMenu.classList.remove('is-active'); });
         settingsMenu.addEventListener('click', (e) => e.stopPropagation());
 
         const safeStartRecognition = () => {
@@ -298,43 +183,31 @@
         };
 
         const fallbackMouseTracking = (e) => {
-            const mouseX = e.clientX;
-            const mouseY = e.clientY;
-            
-            const movePupil = (pupilElement) => {
-                const rect = pupilElement.parentElement.getBoundingClientRect();
-                const eyeCenterX = rect.left + rect.width / 2;
-                const eyeCenterY = rect.top + rect.height / 2;
-                const deltaX = mouseX - eyeCenterX;
-                const deltaY = mouseY - eyeCenterY;
-                const angle = Math.atan2(deltaY, deltaX);
-                const distance = Math.min(rect.width / 4, Math.hypot(deltaX, deltaY) / 10);
-                pupilElement.style.transform = `translate(${Math.cos(angle) * distance}px, ${Math.sin(angle) * distance}px)`;
+            const mouseX = e.clientX; const mouseY = e.clientY;
+            const movePupil = (el) => {
+                const r = el.parentElement.getBoundingClientRect();
+                const dx = mouseX - (r.left + r.width/2);
+                const dy = mouseY - (r.top + r.height/2);
+                const angle = Math.atan2(dy, dx);
+                const dist = Math.min(r.width/4, Math.hypot(dx, dy)/10);
+                el.style.transform = `translate(${Math.cos(angle)*dist}px, ${Math.sin(angle)*dist}px)`;
             };
-
-            movePupil(pupilL);
-            movePupil(pupilR);
+            movePupil(pupilL); movePupil(pupilR);
         };
 
         async function startFaceTracking() {
             const tracker = new tracking.ObjectTracker('face');
-            tracker.setInitialScale(4);
-            tracker.setStepSize(2);
-            tracker.setEdgesDensity(0.1);
-
+            tracker.setInitialScale(4); tracker.setStepSize(2); tracker.setEdgesDensity(0.1);
             try {
                 if (navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
                     const stream = await navigator.mediaDevices.getUserMedia({ video: true });
                     video.srcObject = stream;
                     video.onloadedmetadata = () => { video.play(); };
-                    video.addEventListener('playing', () => {
-                        setTimeout(() => { tracking.track('#webcam', tracker); }, 500);
-                    }, { once: true });
-                } else { throw new Error(); }
+                    video.addEventListener('playing', () => { setTimeout(() => { tracking.track('#webcam', tracker); }, 500); }, { once: true });
+                } else throw new Error();
             } catch (err) {
                 statusText.innerText = "Sinal Instável (Mouse ON)";
                 document.addEventListener('mousemove', fallbackMouseTracking);
-                return; 
             }
 
             tracker.on('track', function(event) {
@@ -345,9 +218,8 @@
                     const rect = event.data[0];
                     const normalizedX = -((rect.x + rect.width / 2) / 320 * 2 - 1);
                     const normalizedY = ((rect.y + rect.height / 2) / 240 * 2 - 1);
-                    const maxMove = 10; 
-                    pupilL.style.transform = `translate(${normalizedX * maxMove}px, ${normalizedY * maxMove}px)`;
-                    pupilR.style.transform = `translate(${normalizedX * maxMove}px, ${normalizedY * maxMove}px)`;
+                    pupilL.style.transform = `translate(${normalizedX * 10}px, ${normalizedY * 10}px)`;
+                    pupilR.style.transform = `translate(${normalizedX * 10}px, ${normalizedY * 10}px)`;
                 }
             });
         }
@@ -363,10 +235,11 @@
             recognition.onresult = async (event) => {
                 if (isSpeaking) return; 
                 const transcriptRaw = event.results[event.results.length - 1][0].transcript;
-                if (transcriptRaw.toLowerCase().includes('isabela') || transcriptRaw.toLowerCase().includes('isabella') || transcriptRaw.toLowerCase().includes('cassandro')) {
+                const lowText = transcriptRaw.toLowerCase();
+                if (lowText.includes('isabela') || lowText.includes('isabella') || lowText.includes('cassandro')) {
                     userTextEl.innerText = `>> COMANDO: "${transcriptRaw.toUpperCase()}"`;
                     messageBox.classList.remove('hidden');
-                    statusText.innerText = "Codificando...";
+                    statusText.innerText = "A processar dados...";
                     try { recognition.stop(); } catch(e) {} 
                     await processInput(transcriptRaw);
                 }
@@ -377,78 +250,121 @@
 
         startBtn.addEventListener('click', () => {
             isSystemActive = true;
-            
-            // ATIVAÇÃO DE ÁUDIO PARA CELULAR (DESBLOQUEIO)
-            if ('speechSynthesis' in window) {
-                const unlockSpeech = new SpeechSynthesisUtterance("");
-                window.speechSynthesis.speak(unlockSpeech);
-            }
-
             startBtn.classList.add('opacity-50', 'pointer-events-none');
-            startBtn.innerText = "Ligado";
+            startBtn.innerText = "Sistema Online";
             settingsMenu.classList.remove('is-active');
             startFaceTracking();
             safeStartRecognition();
         });
 
-        function speak(text) {
-            if ('speechSynthesis' in window) {
-                window.speechSynthesis.cancel();
-                isSpeaking = true;
-                if (isRecognizing && recognition) recognition.abort();
+        function pcmToWav(pcmBuffer, sampleRate) {
+            const dataLength = pcmBuffer.byteLength;
+            const buffer = new ArrayBuffer(44 + dataLength);
+            const view = new DataView(buffer);
+            const writeString = (offset, string) => {
+                for (let i = 0; i < string.length; i++) view.setUint8(offset + i, string.charCodeAt(i));
+            };
+            writeString(0, 'RIFF'); view.setUint32(4, 36 + dataLength, true);
+            writeString(8, 'WAVE'); writeString(12, 'fmt ');
+            view.setUint32(16, 16, true); view.setUint16(20, 1, true);
+            view.setUint16(22, 1, true); view.setUint32(24, sampleRate, true);
+            view.setUint32(28, sampleRate * 2, true); view.setUint16(32, 2, true);
+            view.setUint16(34, 16, true); writeString(36, 'data');
+            view.setUint32(40, dataLength, true);
+            const pcmView = new Uint8Array(pcmBuffer);
+            const wavView = new Uint8Array(buffer, 44);
+            wavView.set(pcmView);
+            return new Blob([buffer], { type: 'audio/wav' });
+        }
 
-                const utterance = new SpeechSynthesisUtterance(text);
-                utterance.lang = 'pt-PT';
+        async function speak(text) {
+            if (isRecognizing && recognition) recognition.abort();
+            isSpeaking = true;
+            // IMPORTANTE: Não adicionamos a classe 'talking' aqui para evitar movimento precoce
+            statusText.innerText = "A modular link vocal...";
+
+            const payload = {
+                contents: [{ parts: [{ text: text }] }],
+                generationConfig: {
+                    responseModalities: ["AUDIO"],
+                    speechConfig: { voiceConfig: { prebuiltVoiceConfig: { voiceName: ttsVoice } } }
+                }
+            };
+
+            try {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify(payload)
+                });
+
+                const result = await response.json();
+                const audioPart = result.candidates?.[0]?.content?.parts?.find(p => p.inlineData);
                 
-                // Forçar atualização de vozes e priorizar VOZ MASCULINA
-                const voices = window.speechSynthesis.getVoices();
-                const selectedVoice = voices.find(v => v.lang.includes('pt') && v.name.toLowerCase().includes('male')) || 
-                                    voices.find(v => v.lang.includes('pt') && (v.name.includes('Duarte') || v.name.includes('Helder') || v.name.includes('Daniel'))) ||
-                                    voices.find(v => v.lang.includes('pt'));
-                
-                if (selectedVoice) utterance.voice = selectedVoice;
+                if (audioPart && audioPart.inlineData) {
+                    const sampleRate = parseInt(audioPart.inlineData.mimeType.split('rate=')[1]) || 24000;
+                    const binaryString = atob(audioPart.inlineData.data);
+                    const pcmData = new Uint8Array(binaryString.length);
+                    for (let i = 0; i < binaryString.length; i++) pcmData[i] = binaryString.charCodeAt(i);
+                    
+                    const wavBlob = pcmToWav(pcmData.buffer, sampleRate);
+                    const audioUrl = URL.createObjectURL(wavBlob);
+                    const audio = new Audio(audioUrl);
+                    
+                    // SINCRONIZAÇÃO DA BOCA: Ativar movimento apenas quando o áudio começar
+                    audio.onplay = () => {
+                        avatar.classList.add('talking');
+                        statusText.innerText = "Transmissão Vocal...";
+                    };
 
-                utterance.onstart = () => { avatar.classList.add('talking'); statusText.innerText = "Modulando Voz..."; };
-                utterance.onend = () => { 
-                    avatar.classList.remove('talking'); 
-                    statusText.innerText = "Transmissão Ativa"; 
-                    isSpeaking = false; 
-                    setTimeout(safeStartRecognition, 200); 
-                };
-                utterance.onerror = () => {
-                    avatar.classList.remove('talking');
-                    isSpeaking = false;
-                    setTimeout(safeStartRecognition, 200);
-                };
+                    audio.onended = () => {
+                        avatar.classList.remove('talking');
+                        statusText.innerText = "Transmissão Ativa";
+                        isSpeaking = false;
+                        URL.revokeObjectURL(audioUrl);
+                        setTimeout(safeStartRecognition, 200);
+                    };
 
-                window.speechSynthesis.speak(utterance);
+                    await audio.play();
+                } else throw new Error("Ficheiro vocal corrompido.");
+            } catch (e) {
+                console.error("TTS Error:", e);
+                avatar.classList.remove('talking');
+                isSpeaking = false;
+                statusText.innerText = "Falha no link vocal.";
+                safeStartRecognition();
             }
         }
 
         async function processInput(text) {
-            if (!apiKey) {
-                setTimeout(() => {
-                    const resp = `Protocolo Cassandro ativado. Módulo de voz masculina em funcionamento.`;
-                    isabellaTextEl.innerText = resp; speak(resp);
-                }, 1000);
-                return;
-            }
-            const API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`;
+            const now = new Date();
+            const day = now.toLocaleDateString('pt-PT', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            const time = now.toLocaleTimeString('pt-PT', { hour: '2-digit', minute: '2-digit' });
+
+            const systemPrompt = `Teu nome é Cassandro. És um assistente holográfico masculino ultra-realista.
+            Persona: Masculino, culto, direto e prestativo.
+            Contexto Atual: Hoje é ${day}. A hora certa agora é ${time}.
+            Recursos: Tens acesso à internet via Google Search para responder sobre clima, notícias e eventos.
+            Instrução: Responde de forma curta e masculina em português de Portugal. Sê preciso.`;
+
             try {
-                const response = await fetch(API_URL, {
+                const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-09-2025:generateContent?key=${apiKey}`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         contents: [{ parts: [{ text: text }] }],
-                        systemInstruction: { parts: [{ text: "Teu nome é Cassandro. És uma IA holográfica masculina. Responde sempre de forma curta e masculina em português de Portugal." }] }
+                        systemInstruction: { parts: [{ text: systemPrompt }] },
+                        tools: [{ "google_search": {} }] // Capacidade de busca inteligente
                     })
                 });
                 const data = await response.json();
-                const textResp = data.candidates[0].content.parts[0].text;
+                const textResp = data.candidates?.[0]?.content?.parts?.[0]?.text || "Erro de link neural.";
                 isabellaTextEl.innerText = textResp;
                 speak(textResp);
-            } catch (error) {
-                speak("Erro de sincronização. Verifica a tua rede.");
+            } catch (error) { 
+                statusText.innerText = "Erro de rede neural.";
+                isSpeaking = false;
+                safeStartRecognition();
             }
         }
     </script>
