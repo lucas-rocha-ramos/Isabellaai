@@ -55,6 +55,12 @@
         .talking .lip-top { animation: talk-top 0.2s infinite alternate; }
         .talking .lip-bottom { animation: talk-bottom 0.2s infinite alternate; }
         
+        /* Correção de Transparência da Boca */
+        .lip-top, .lip-bottom {
+            opacity: 1 !important;
+            filter: brightness(1) contrast(1) !important;
+        }
+
         .mouth-interior {
             transition: all 0.2s;
             opacity: 0;
