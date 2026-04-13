@@ -363,7 +363,7 @@
             recognition.onresult = async (event) => {
                 if (isSpeaking) return; 
                 const transcriptRaw = event.results[event.results.length - 1][0].transcript;
-                if (transcriptRaw.toLowerCase().includes('isabela') || transcriptRaw.toLowerCase().includes('isabella')) {
+                if (transcriptRaw.toLowerCase().includes('isabela') || transcriptRaw.toLowerCase().includes('isabella') || transcriptRaw.toLowerCase().includes('cassandro')) {
                     userTextEl.innerText = `>> COMANDO: "${transcriptRaw.toUpperCase()}"`;
                     messageBox.classList.remove('hidden');
                     statusText.innerText = "Codificando...";
@@ -400,9 +400,11 @@
                 const utterance = new SpeechSynthesisUtterance(text);
                 utterance.lang = 'pt-PT';
                 
-                // Forçar atualização de vozes para celular
+                // Forçar atualização de vozes e priorizar VOZ MASCULINA
                 const voices = window.speechSynthesis.getVoices();
-                const selectedVoice = voices.find(v => v.lang === 'pt-PT' && (v.name.includes('Google') || v.name.includes('Natural'))) || voices.find(v => v.lang.includes('pt'));
+                const selectedVoice = voices.find(v => v.lang.includes('pt') && v.name.toLowerCase().includes('male')) || 
+                                    voices.find(v => v.lang.includes('pt') && (v.name.includes('Duarte') || v.name.includes('Helder') || v.name.includes('Daniel'))) ||
+                                    voices.find(v => v.lang.includes('pt'));
                 
                 if (selectedVoice) utterance.voice = selectedVoice;
 
@@ -426,7 +428,7 @@
         async function processInput(text) {
             if (!apiKey) {
                 setTimeout(() => {
-                    const resp = `Iniciando protocolo holográfico. Sistema Isabella carregado com sucesso. Áudio ativado.`;
+                    const resp = `Protocolo Cassandro ativado. Módulo de voz masculina em funcionamento.`;
                     isabellaTextEl.innerText = resp; speak(resp);
                 }, 1000);
                 return;
@@ -438,7 +440,7 @@
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         contents: [{ parts: [{ text: text }] }],
-                        systemInstruction: { parts: [{ text: "Teu nome é Isabella. És uma IA holográfica. Responde curto em português de Portugal." }] }
+                        systemInstruction: { parts: [{ text: "Teu nome é Cassandro. És uma IA holográfica masculina. Responde sempre de forma curta e masculina em português de Portugal." }] }
                     })
                 });
                 const data = await response.json();
